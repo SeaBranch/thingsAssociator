@@ -6,7 +6,6 @@
  *
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
-
 const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
@@ -19,11 +18,11 @@ exports.helloWorld = onRequest(async (request, response) => {
   logger.info("Hello logs!", {structuredData: true});
   try {
     await getNASAData(response)
-    .then(dataString => {dataString
-      response.status(200).send("Hello from Firebase Nathan!" + dataString);
+      .then(jsonData => {
+      response.status(200).send(jsonData);
     })
   } catch (error) {
-    response.status(500).send("Opps Nathan!" + error);
+    response.status(500).send(error.json);
   }
 });
 
@@ -31,8 +30,7 @@ async function getNASAData() {
   try {
     let res;
     res = await fetch(endpointString);
-    const data = await res.json();
-    return JSON.stringify(data);
+    return await res.json();
   } catch (error) {
     throw error
   }
